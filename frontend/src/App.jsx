@@ -1,122 +1,110 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState, useEffect } from "react"
+import { supabase } from "./supabase"
+import Login from "./pages/Login"
+import Onboarding from "./pages/Onboarding"
+import PanelUsuario from "./pages/PanelUsuario"
+import PanelAdmin from "./pages/PanelAdmin"
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [perfil, setPerfil] = useState(null)
+  const [cargando, setCargando] = useState(true)
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+  useEffect(() => {
+    const verificarSesion = async () => {
+      // Intercepta el enlace de confirmación de correo de Supabase para forzar el paso por el Login
+      const hash = window.location.hash
+      if (hash && (hash.includes("type=signup") || hash.includes("type=email"))) {
+        await supabase.auth.signOut()
+        setPerfil(null)
+        setCargando(false)
+        return
+      }
 
-      <div className="ticks"></div>
+      const { data } = await supabase.auth.getSession()
+      if (data.session) {
+        const { data: perfilData } = await supabase
+          .from("perfiles")
+          .select("*")
+          .eq("id", data.session.user.id)
+          .single()
+        setPerfil(perfilData || null)
+      }
+      setCargando(false)
+    }
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+    verificarSesion()
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      const hash = window.location.hash
+      if (hash && (hash.includes("type=signup") || hash.includes("type=email"))) {
+        await supabase.auth.signOut()
+        setPerfil(null)
+        setCargando(false)
+        return
+      }
+
+      if (session) {
+        const { data: perfilData } = await supabase
+          .from("perfiles")
+          .select("*")
+          .eq("id", session.user.id)
+          .single()
+        setPerfil(perfilData || null)
+      } else {
+        setPerfil(null)
+      }
+      setCargando(false)
+    })
+
+    return () => {
+      authListener.subscription.unsubscribe()
+    }
+  }, [])
+
+  const cerrarSesion = async () => {
+    await supabase.auth.signOut()
+    setPerfil(null)
+  }
+
+  const actualizarPerfil = (perfilActualizado) => {
+    setPerfil(perfilActualizado)
+  }
+
+  if (cargando) {
+    return (
+      <div style={estilos.cargando}>
+        <p>⏳ Cargando TutorIA...</p>
+      </div>
+    )
+  }
+
+  if (!perfil) return <Login onLogin={setPerfil} />
+
+  if (perfil.rol === "administrador") {
+    return <PanelAdmin perfil={perfil} onCerrarSesion={cerrarSesion} />
+  }
+
+  if (!perfil.onboarding_completado) {
+    return (
+      <Onboarding
+        perfil={perfil}
+        onTerminar={() => actualizarPerfil({ ...perfil, onboarding_completado: true })}
+      />
+    )
+  }
+
+  return <PanelUsuario perfil={perfil} onCerrarSesion={cerrarSesion} />
+}
+
+const estilos = {
+  cargando: {
+    minHeight: "100vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "18px",
+    color: "#4f46e5",
+  }
 }
 
 export default App
