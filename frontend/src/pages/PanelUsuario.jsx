@@ -139,7 +139,8 @@ function PanelUsuario({ perfil, onCerrarSesion }) {
     setCargando(true)
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/preguntar", {
+      // 🔥 URL ACTUALIZADA 🔥
+      const res = await fetch("https://tutor-inteligente-g3nk.onrender.com/preguntar", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ duda: `Soy el estudiante. Respondí: "${resUsr}". Enséñame el primer paso en ${lenguaje.toUpperCase()} de forma rápida.`, historial: [msgBienvenida, msgUsuario], usuario_id: perfil.id, lenguaje, es_reto_formal: false })
       })
@@ -169,7 +170,8 @@ function PanelUsuario({ perfil, onCerrarSesion }) {
     const enModoReto = retoActivoEnunciado !== null;
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/preguntar", {
+      // 🔥 URL ACTUALIZADA 🔥
+      const res = await fetch("https://tutor-inteligente-g3nk.onrender.com/preguntar", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           duda: textoLimpio, 
@@ -205,7 +207,6 @@ function PanelUsuario({ perfil, onCerrarSesion }) {
   }
 
   const generarRetoEnChat = async () => {
-    // Si ya completó los 3 del lenguaje actual
     const retosActuales = perfilData[`${langKey}_e${nivelActual}`] || 0;
     if (retosActuales >= 3) {
       alert(`⚠️ Ya has completado las 3 misiones de ${lenguaje.toUpperCase()} para el Nivel ${nivelActual}.\n\nPor favor cambia a otro lenguaje en la pestaña superior para continuar tus misiones.`);
@@ -214,7 +215,8 @@ function PanelUsuario({ perfil, onCerrarSesion }) {
 
     setCargando(true)
     try {
-      const res = await fetch("http://127.0.0.1:8000/ejercicio/generar", {
+      // 🔥 URL ACTUALIZADA 🔥
+      const res = await fetch("https://tutor-inteligente-g3nk.onrender.com/ejercicio/generar", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lenguaje, usuario_id: perfil.id, nivel: nivelActual })
       })
@@ -240,7 +242,6 @@ function PanelUsuario({ perfil, onCerrarSesion }) {
     }
   }
 
-  // VALIDACIÓN DE TEST FINAL
   const puedeHacerTest = nivelActual === 3 && pyCount >= 3 && jaCount >= 3 && psCount >= 3;
   const yaRendioTest = perfilData.puntaje_test !== null && perfilData.puntaje_test !== undefined;
 
@@ -282,7 +283,6 @@ function PanelUsuario({ perfil, onCerrarSesion }) {
             <span style={{fontSize: "14px", fontWeight: "900", color: "#ef4444"}}>{perfilData.errores_totales || 0}</span>
           </div>
 
-          {/* 🔥 BOTÓN TEST FINAL CON CANDADO SI YA FUE RENDIDO 🔥 */}
           {puedeHacerTest && (
             yaRendioTest ? (
               <div style={estilos.cajaTestCompletado}>
@@ -355,7 +355,6 @@ function PanelUsuario({ perfil, onCerrarSesion }) {
                 <div style={estilos.contenedorInput}>
                   {retoActivoEnunciado && <div style={{ backgroundColor: "#fef3c7", padding: "8px 12px", borderRadius: "8px", border: "1px solid #f59e0b", color: "#b45309", fontSize: "13px", fontWeight: "700", marginBottom: "6px" }}>⚠️ ESTÁS EN MODO RETO: Tu siguiente mensaje será evaluado estrictamente por el sistema.</div>}
                   <div style={estilos.inputArea}>
-                    {/* 🔥 BLOQUEO DE COPY-PASTE APLICADO AQUI 🔥 */}
                     <textarea 
                       ref={inputChatRef} 
                       style={estilos.textarea} 
