@@ -297,8 +297,14 @@ function PanelUsuario({ perfil, onCerrarSesion }) {
         <nav style={estilos.nav}>
           <button style={vista === "chat" ? estilos.navItemActivo : estilos.navItem} onClick={() => setVista("chat")}>💬 Chat del Tutor</button>
           <button style={vista === "ranking" ? estilos.navItemActivo : estilos.navItem} onClick={() => !navegacionBloqueada && setVista("ranking")} disabled={navegacionBloqueada}>🏅 Ranking {navegacionBloqueada && "🔒"}</button>
+          {/* 🔥 NUEVO BOTÓN DE ENCUESTA 🔥 */}
+          <button 
+            style={{...estilos.navItem, marginTop: "15px", backgroundColor: "rgba(16, 185, 129, 0.1)", color: "#10b981", border: "1px solid #10b981"}} 
+            onClick={() => window.open("https://docs.google.com/forms/d/e/1FAIpQLSeDLKW2oTiv_HMyP0PueO6QwdTsTPEPPQqXdi0fWKwOq8GRgg/viewform?usp=publish-editor", "_blank")}
+          >
+            ⭐ Evaluar Plataforma
+          </button>
         </nav>
-
         <div style={estilos.sidebarFooter}>
           <p style={estilos.adminName}>👤 {perfil.nombre || "Estudiante"}</p>
           <button style={estilos.btnSalir} onClick={manejarCierreSesion}>Cerrar Sesión</button>
