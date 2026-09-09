@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react"
 import { supabase } from "../supabase"
 import TestFinal from "./TestFinal"
 import Ranking from "./Ranking"
+// 🔥 IMPORTAMOS EL NUEVO COMPONENTE 🔥
+import ModulosAprendizaje from "./ModulosAprendizaje" 
 
 const FormatearMensaje = ({ texto, isDark }) => {
   if (!texto) return null;
@@ -139,7 +141,7 @@ function PanelUsuario({ perfil, onCerrarSesion }) {
     setCargando(true)
 
     try {
-      // 🔥 URL ACTUALIZADA 🔥
+      // URL ACTUALIZADA
       const res = await fetch("https://tutor-inteligente-g3nk.onrender.com/preguntar", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ duda: `Soy el estudiante. Respondí: "${resUsr}". Enséñame el primer paso en ${lenguaje.toUpperCase()} de forma rápida.`, historial: [msgBienvenida, msgUsuario], usuario_id: perfil.id, lenguaje, es_reto_formal: false })
@@ -170,7 +172,7 @@ function PanelUsuario({ perfil, onCerrarSesion }) {
     const enModoReto = retoActivoEnunciado !== null;
 
     try {
-      // 🔥 URL ACTUALIZADA 🔥
+      // URL ACTUALIZADA
       const res = await fetch("https://tutor-inteligente-g3nk.onrender.com/preguntar", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -215,7 +217,7 @@ function PanelUsuario({ perfil, onCerrarSesion }) {
 
     setCargando(true)
     try {
-      // 🔥 URL ACTUALIZADA 🔥
+      // URL ACTUALIZADA
       const res = await fetch("https://tutor-inteligente-g3nk.onrender.com/ejercicio/generar", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lenguaje, usuario_id: perfil.id, nivel: nivelActual })
@@ -296,8 +298,12 @@ function PanelUsuario({ perfil, onCerrarSesion }) {
 
         <nav style={estilos.nav}>
           <button style={vista === "chat" ? estilos.navItemActivo : estilos.navItem} onClick={() => setVista("chat")}>💬 Chat del Tutor</button>
+          
+          {/* 🔥 BOTÓN DE MÓDULOS AÑADIDO AQUÍ 🔥 */}
+          <button style={vista === "modulos" ? estilos.navItemActivo : estilos.navItem} onClick={() => !navegacionBloqueada && setVista("modulos")} disabled={navegacionBloqueada}>📚 Módulos Guiados {navegacionBloqueada && "🔒"}</button>
+          
           <button style={vista === "ranking" ? estilos.navItemActivo : estilos.navItem} onClick={() => !navegacionBloqueada && setVista("ranking")} disabled={navegacionBloqueada}>🏅 Ranking {navegacionBloqueada && "🔒"}</button>
-          {/* 🔥 NUEVO BOTÓN DE ENCUESTA 🔥 */}
+          
           <button 
             style={{...estilos.navItem, marginTop: "15px", backgroundColor: "rgba(16, 185, 129, 0.1)", color: "#10b981", border: "1px solid #10b981"}} 
             onClick={() => window.open("https://docs.google.com/forms/d/e/1FAIpQLSeDLKW2oTiv_HMyP0PueO6QwdTsTPEPPQqXdi0fWKwOq8GRgg/viewform?usp=publish-editor", "_blank")}
@@ -312,6 +318,7 @@ function PanelUsuario({ perfil, onCerrarSesion }) {
       </aside>
 
       <main style={estilos.mainContent}>
+        {/* VISTA 1: CHAT */}
         {vista === "chat" && (
           <div style={estilos.vistaFade}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
@@ -383,7 +390,17 @@ function PanelUsuario({ perfil, onCerrarSesion }) {
           </div>
         )}
         
+        {/* 🔥 VISTA 2: MÓDULOS DE APRENDIZAJE 🔥 */}
+        {vista === "modulos" && (
+          <div style={estilos.vistaFade}>
+            <ModulosAprendizaje perfil={perfilData} temaOscuro={temaOscuro} onVolver={() => setVista("chat")} />
+          </div>
+        )}
+
+        {/* VISTA 3: RANKING */}
         {vista === "ranking" && <div style={estilos.vistaFade}><Ranking temaOscuro={temaOscuro} /></div>}
+        
+        {/* VISTA 4: TEST FINAL */}
         {vista === "test" && <div style={estilos.vistaFade}><TestFinal perfil={perfilData} onVolver={() => setVista("chat")} temaOscuro={temaOscuro} /></div>}
       </main>
     </div>
