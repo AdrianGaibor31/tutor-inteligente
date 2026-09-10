@@ -210,11 +210,10 @@ function ModulosAprendizaje({ perfil, temaOscuro, onVolver }) {
         </div>
       </div>
 
-      {/* Barra de progreso */}
+    {/* Barra de progreso */}
       <div style={estilos.barraFondo}>
-        <div style={{ ...estilos.barraRelleno, width: `${((pasoActual + 1) / pasos.length) * 100}%` }} />
+        <div style={{ ...estilos.barraRelleno, width: `${pasos.length > 0 ? ((pasoActual + 1) / pasos.length) * 100 : 0}%` }} />
       </div>
-
       {/* Mensaje de completado */}
       {moduloCompletado && (
         <div style={estilos.completadoBox}>
@@ -239,10 +238,11 @@ function ModulosAprendizaje({ perfil, temaOscuro, onVolver }) {
 
           <p style={estilos.contenidoPaso}>{paso.contenido}</p>
 
-          {/* Opciones (Botones) */}
+         {/* Opciones (Botones) */}
           {paso.tipo === "seleccion" && paso.opciones && (
             <div style={estilos.opcionesGrid}>
-              {JSON.parse(paso.opciones).map((opcion, i) => (
+              {/* 🔥 CAMBIO APLICADO: Validamos si ya es un Array antes de parsear 🔥 */}
+              {(Array.isArray(paso.opciones) ? paso.opciones : JSON.parse(paso.opciones)).map((opcion, i) => (
                 <button
                   key={i}
                   style={respuesta === opcion ? estilos.opcionSeleccionada : estilos.opcionNormal}
