@@ -141,6 +141,7 @@ function PanelUsuario({ perfil, onCerrarSesion }) {
     setCargando(true)
 
     try {
+      // URL ACTUALIZADA
       const res = await fetch("https://tutor-inteligente-g3nk.onrender.com/preguntar", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ duda: `Soy el estudiante. Respondí: "${resUsr}". Enséñame el primer paso en ${lenguaje.toUpperCase()} de forma rápida.`, historial: [msgBienvenida, msgUsuario], usuario_id: perfil.id, lenguaje, es_reto_formal: false })
@@ -171,6 +172,7 @@ function PanelUsuario({ perfil, onCerrarSesion }) {
     const enModoReto = retoActivoEnunciado !== null;
 
     try {
+      // URL ACTUALIZADA
       const res = await fetch("https://tutor-inteligente-g3nk.onrender.com/preguntar", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -215,6 +217,7 @@ function PanelUsuario({ perfil, onCerrarSesion }) {
 
     setCargando(true)
     try {
+      // URL ACTUALIZADA
       const res = await fetch("https://tutor-inteligente-g3nk.onrender.com/ejercicio/generar", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lenguaje, usuario_id: perfil.id, nivel: nivelActual })
@@ -241,10 +244,8 @@ function PanelUsuario({ perfil, onCerrarSesion }) {
     }
   }
 
-  // 🔥 ARREGLO 1: Se desbloquea si completó los 3 retos en los 3 lenguajes (>=3) o si ya alcanzó el nivel 3
-  const puedeHacerTest = (pyCount >= 3 && jaCount >= 3 && psCount >= 3) || nivelActual >= 3;
-  const yaRendioTest = perfilData.puntaje_test !== null && perfilData.puntaje_test !== undefined;
-
+// LÍNEA CORREGIDA:
+  const puedeHacerTest = nivelActual === 3 && pyCount >= 3 && jaCount >= 3 && psCount >= 3;  const yaRendioTest = perfilData.puntaje_test !== null && perfilData.puntaje_test !== undefined;
   const estilos = obtenerEstilos(temaOscuro);
 
   return (
@@ -283,19 +284,13 @@ function PanelUsuario({ perfil, onCerrarSesion }) {
             <span style={{fontSize: "14px", fontWeight: "900", color: "#ef4444"}}>{perfilData.errores_totales || 0}</span>
           </div>
 
-          {/* 🔥 ARREGLO 2: Siempre interactivo con estilo nativo */}
           {puedeHacerTest && (
             yaRendioTest ? (
-              <button 
-                style={{ ...estilos.cajaTestCompletado, cursor: "pointer", display: "block", border: "1px solid #10b981" }} 
-                onClick={() => setVista("test")}
-              >
-                🎓 Test Rendido: <strong>{perfilData.puntaje_test}/10 pts (Ver)</strong>
-              </button>
+              <div style={estilos.cajaTestCompletado}>
+                🎓 Test Rendido: <strong>{perfilData.puntaje_test}/10 pts</strong>
+              </div>
             ) : (
-              <button style={estilos.botonTestFinal} onClick={() => setVista("test")}>
-                🏆 Iniciar Test Final
-              </button>
+              <button style={estilos.botonTestFinal} onClick={() => setVista("test")}>🏆 Iniciar Test Final</button>
             )
           )}
         </div>
@@ -303,13 +298,10 @@ function PanelUsuario({ perfil, onCerrarSesion }) {
         <nav style={estilos.nav}>
           <button style={vista === "chat" ? estilos.navItemActivo : estilos.navItem} onClick={() => setVista("chat")}>💬 Chat del Tutor</button>
           
-          <button style={vista === "modulos" ? estilos.navItemActivo : estilos.navItem} onClick={() => !navegacionBloqueada && setVista("modulos")} disabled={navegacionBloqueada}>
-            📚 Módulos Guiados {navegacionBloqueada && "🔒"}
-          </button>
+          {/* 🔥 BOTÓN DE MÓDULOS AÑADIDO AQUÍ 🔥 */}
+          <button style={vista === "modulos" ? estilos.navItemActivo : estilos.navItem} onClick={() => !navegacionBloqueada && setVista("modulos")} disabled={navegacionBloqueada}>📚 Módulos Guiados {navegacionBloqueada && "🔒"}</button>
           
-          <button style={vista === "ranking" ? estilos.navItemActivo : estilos.navItem} onClick={() => !navegacionBloqueada && setVista("ranking")} disabled={navegacionBloqueada}>
-            🏅 Ranking {navegacionBloqueada && "🔒"}
-          </button>
+          <button style={vista === "ranking" ? estilos.navItemActivo : estilos.navItem} onClick={() => !navegacionBloqueada && setVista("ranking")} disabled={navegacionBloqueada}>🏅 Ranking {navegacionBloqueada && "🔒"}</button>
           
           <button 
             style={{...estilos.navItem, marginTop: "15px", backgroundColor: "rgba(16, 185, 129, 0.1)", color: "#10b981", border: "1px solid #10b981"}} 
@@ -397,7 +389,7 @@ function PanelUsuario({ perfil, onCerrarSesion }) {
           </div>
         )}
         
-        {/* VISTA 2: MÓDULOS DE APRENDIZAJE */}
+        {/* 🔥 VISTA 2: MÓDULOS DE APRENDIZAJE 🔥 */}
         {vista === "modulos" && (
           <div style={estilos.vistaFade}>
             <ModulosAprendizaje perfil={perfilData} temaOscuro={temaOscuro} onVolver={() => setVista("chat")} />
@@ -453,4 +445,4 @@ const obtenerEstilos = (isDark) => ({
   textoInstruccion: { margin: 0, fontSize: "12px", color: isDark ? "#94a3b8" : "#64748b", paddingLeft: "4px", fontWeight: "600" }
 });
 
-export default PanelUsuario;
+export default PanelUsuario
